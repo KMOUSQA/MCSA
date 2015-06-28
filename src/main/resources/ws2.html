@@ -1,0 +1,129 @@
+<!--
+
+  This example adapted from Netty project
+
+ * Copyright 2010 Red Hat, Inc.
+ *
+ * Red Hat licenses this file to you under the Apache License, version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at:
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ -->
+
+<html>
+<head><title>Web Socket Test</title></head>
+<body>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+	var wsocket;
+	var serviceLocation = "ws://127.0.0.1:8090/";
+	var $source;
+	var $target;
+	var $message;
+	var $chatWindow;
+	var room = '';
+ 
+	function onMessageReceived(evt) {
+		var msg = evt.data; // native API
+		$chatWindow.append(msg);
+	}
+	function sendMessage() {
+		//var msg = '{"type":"chat", "senderId":' + $source.val() + ', "receiverId":' + $target.val()+ ', "data":"' + $message.val() + '"}';
+		var msg = {
+					'endpointType':'dma.messaging.MaritimeTextingService.sendMessage', 
+					'senderId':Number($source.val()),
+					'receiverId':Number($target.val()),
+					'parameters':{
+						'severity':"MESSAGE",
+						'msg':$message.val()
+					}
+				};
+		
+		wsocket.send(JSON.stringify(msg));
+		
+		$message.val('').focus();
+	}
+ 
+	function connectToChatserver() {
+		
+		wsocket = new WebSocket(serviceLocation);
+		wsocket.onmessage = onMessageReceived;
+		wsocket.onopen = function(evt){
+			var msg = '{"type":"connect", "source":' + $source.val() + ', "name":"testclient"}';
+			wsocket.send(msg);
+		};
+		
+	}
+ 
+	function leaveRoom() {
+		wsocket.close();
+		$chatWindow.empty();
+		$('.chat-wrapper').hide();
+		$('.chat-signin').show();
+		$source.focus();
+	}
+ 
+	$(document).ready(function() {
+		$source = $('#source');
+		$target = $('#target');
+		$message = $('#message');
+		$chatWindow = $('#response');
+		$('.chat-wrapper').hide();
+		$source.focus();
+ 
+		$('#enterRoom').click(function(evt) {
+			evt.preventDefault();
+			connectToChatserver();
+			$('.chat-wrapper h2').text('Chat # '+$source.val());
+			$('.chat-signin').hide();
+			$('.chat-wrapper').show();
+			$message.focus();
+		});
+		$('#do-chat').submit(function(evt) {
+			evt.preventDefault();
+			sendMessage()
+		});
+ 
+		$('#leave-room').click(function(){
+			leaveRoom();
+		});
+	});
+</script>
+<div class="container chat-signin">
+	<form class="form-signin">
+		<h2 class="form-signin-heading">Chat sign in</h2>
+		<label for="source">Source</label> 
+		<input type="text" class="input-block-level" placeholder="Source" id="source"/>
+		<button class="btn btn-large btn-primary" type="submit"
+			id="enterRoom">Sign in</button>
+	</form>
+</div>
+ 
+<div class="container chat-wrapper">
+	<form id="do-chat">
+		<h2 class="alert alert-success"></h2>
+		<table id="response" class="table table-bordered"></table>
+		<fieldset>
+			<legend>Enter your message..</legend>
+			<div class="controls">
+				<input type="text" class="input-block-level" placeholder="Your message..." id="message" style="height:60px"/>
+				<label for="target">Target</label> 
+				<input type="text" class="input-block-level" placeholder="Target" id="target"/>
+				<input type="submit" class="btn btn-large btn-block btn-primary"
+					value="Send message" />
+				<button class="btn btn-large btn-block" type="button" id="leave-room">Leave
+					room</button>
+			</div>
+		</fieldset>
+	</form>
+</div>
+</body>
+</html>
