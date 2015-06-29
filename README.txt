@@ -2,14 +2,14 @@
 
 ##Background##
 
-MCSA is Maritime Cloud Service Agency
+MCSA is Maritime Cloud Service Agency.
 The purpose of the MSCA is helping information exchanging between MC and Heterogeneous Local client.
 It could be utilized for using MC Service at the local client that use different platform from MC.
 
 ##Functions##
 
-MCSA provides network interface with MC
-MCSA transforms the Json data that input for the service interface with MC to MC as an appropriate form 
+MCSA provides network interface with MC.
+MCSA transforms the Json data that input for the service interface with MC to MC as an appropriate form.
 Currently, MCSA offers the link with EPD Client which is one of MC services that developed by JAVA.
 For the connection between the client that developed by another platform and MC, it could be designed additionally, later.
 
